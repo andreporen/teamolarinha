@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>pra minha lalinha</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -12,8 +12,7 @@
     height:100%;width:100%;
     background:var(--bg);color:var(--text);
     font-family:'Inter',sans-serif;
-    overflow:hidden;
-    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;display:flex;align-items:center;justify-content:center;
   }
   #start{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -36,11 +35,16 @@
     z-index:0;
   }
   .img-bg img{
-    width:80%;max-width:800px;border-radius:10px;
+    width:85%;max-width:800px;border-radius:10px;
     opacity:0;transition:opacity 1s ease;
-    box-shadow:0 30px 80px rgba(0,0,0,.7);
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
   }
   .img-bg img.show{opacity:1;}
+  .overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.9));
+    z-index:1;pointer-events:none;
+  }
   .text{
     position:relative;
     z-index:2;
@@ -49,40 +53,56 @@
     width:90%;
     max-width:700px;
     color:#fff;
-    text-shadow:0 0 10px rgba(0,0,0,0.6);
+    text-shadow:0 0 8px rgba(0,0,0,0.8);
     height:5em;
   }
   .fade-end{
     position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,0),#000);
-    opacity:0;transition:opacity 1.5s ease;
+    background:#000;
+    opacity:0;transition:opacity 2s ease;
     z-index:5;
+    display:flex;align-items:center;justify-content:center;
+    flex-direction:column;
   }
   .fade-end.show{opacity:1;}
+  .final-text{
+    font-size:1.2rem;
+    opacity:0;
+    color:#fff;
+    font-weight:600;
+    letter-spacing:0.5px;
+    animation:fadeInText 4s ease forwards;
+    animation-delay:2s;
+  }
+  @keyframes fadeInText{
+    to{opacity:1;}
+  }
   @media(max-width:600px){
     .text{font-size:1rem;}
-    .img-bg img{width:90%;}
+    .img-bg img{width:92%;}
   }
 </style>
 </head>
 <body>
 
-<!-- tela inicial -->
 <div id="start">
   <button id="beginBtn">começar</button>
 </div>
 
 <div class="stage" id="stage">
   <div class="img-bg" id="imgWrap">
-    <img id="img1" src="foto1.jpg" alt="">
-    <img id="img2" src="foto2.jpg" alt="">
-    <img id="img3" src="foto3.jpg" alt="">
-    <img id="img4" src="foto4.jpg" alt="">
-    <img id="img5" src="foto5.jpg" alt="">
-    <img id="img6" src="foto6.jpg" alt="">
+    <img src="foto1.jpg" alt="">
+    <img src="foto2.jpg" alt="">
+    <img src="foto3.jpg" alt="">
+    <img src="foto4.jpg" alt="">
+    <img src="foto5.jpg" alt="">
+    <img src="foto6.jpg" alt="">
   </div>
+  <div class="overlay"></div>
   <div class="text" id="text"></div>
-  <div class="fade-end" id="fadeEnd"></div>
+  <div class="fade-end" id="fadeEnd">
+    <div class="final-text">seu eterno tomatinho</div>
+  </div>
 </div>
 
 <audio id="bgAudio" src="musica.mp3" preload="auto"></audio>
@@ -95,14 +115,11 @@ const textEl = document.getElementById('text');
 const imgs = [...document.querySelectorAll('.img-bg img')];
 const fadeEnd = document.getElementById('fadeEnd');
 
-const totalDuration = 107000; // total 1m47s
+const totalDuration = 107000;
 const fadeOutDuration = 4000;
-const imgCount = imgs.length;
-const typeSpeed = 40; // velocidade de digitação
+const typeSpeed = 40;
 const eraseSpeed = 25;
-const pauseTime = 2000; // pausa entre escrever/apagar
-
-// fragmentos do texto (6 partes pra combinar com imagens)
+const pauseTime = 2000;
 const messages = [
   "pra minha lalinha.\nou larovski. namurada. paixão. amô. nabinho.",
   "é tão leve com você que até parece estranho tentar escrever algo sério.\nparece que nos conhecemos há tanto tempo que até esqueço que teve um antes.",
@@ -112,10 +129,16 @@ const messages = [
   "te amo mais que tudo, paixão."
 ];
 
-let audioStarted = false;
-let currentMsg = 0;
+// ===== manter a tela ligada =====
+async function keepAwake() {
+  try {
+    if ('wakeLock' in navigator) {
+      await navigator.wakeLock.request('screen');
+    }
+  } catch(e) { console.log('WakeLock não disponível'); }
+}
 
-// fade util
+// ===== fades de áudio =====
 function fadeAudio(from,to,duration){
   const steps = Math.max(8, Math.round(duration/100));
   let i=0;
@@ -125,7 +148,6 @@ function fadeAudio(from,to,duration){
     if(i>=steps) clearInterval(iv);
   }, duration/steps);
 }
-
 function fadeOutMusic(){
   const steps = Math.max(8, Math.round(fadeOutDuration/100));
   let i=0, from = audio.volume;
@@ -136,39 +158,36 @@ function fadeOutMusic(){
   }, fadeOutDuration/steps);
 }
 
-// typewriter effect
-async function typeWriter(msg){
+// ===== typewriter =====
+async function typeText(msg){
   textEl.textContent = "";
   for(let char of msg){
     textEl.textContent += char;
-    await new Promise(r=>setTimeout(r,typeSpeed));
+    await wait(typeSpeed);
   }
-  await new Promise(r=>setTimeout(r,pauseTime));
+  await wait(pauseTime);
   for(let i=msg.length;i>=0;i--){
     textEl.textContent = msg.slice(0,i);
-    await new Promise(r=>setTimeout(r,eraseSpeed));
+    await wait(eraseSpeed);
   }
-  await new Promise(r=>setTimeout(r,300));
 }
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 
+// ===== execução principal =====
 async function startShow(){
+  keepAwake();
   startScreen.style.display='none';
   try { await audio.play(); } catch(e){}
   fadeAudio(0,0.4,1500);
-  const startTime = performance.now();
-
-  for(let i=0;i<imgCount;i++){
+  for(let i=0;i<imgs.length;i++){
     imgs.forEach((img,idx)=>img.classList.toggle('show',idx===i));
-    await typeWriter(messages[i]);
+    await typeText(messages[i]);
   }
-
   fadeOutMusic();
   fadeEnd.classList.add('show');
 }
 
-btn.onclick = async ()=>{
-  startShow();
-};
+btn.onclick = ()=>startShow();
 </script>
 </body>
 </html>

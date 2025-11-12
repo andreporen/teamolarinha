@@ -180,7 +180,7 @@ async function startShow(){
   keepAwake();
   startScreen.style.display='none';
   try { await audio.play(); } catch(e){}
-  fadeAudio(0,0.45,1500);
+  fadeAudio(0,0.30,1500);
 
   const startTime = performance.now();
   startImageLoop(startTime);

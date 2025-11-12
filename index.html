@@ -7,118 +7,108 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #000;
-    --text: #fff;
-    --fade: .6s ease;
+    --bg:#000;
+    --text:#fff;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body {
-    height: 100%;
-    width: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    height:100%;
+    width:100%;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
+  .screen{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transition:opacity 1s ease;
+  }
+  .screen.active{opacity:1;z-index:2;}
 
-  .screen {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 1.2s ease;
+  #mainText{
+    max-width:640px;
+    width:90%;
+    text-align:left;
+    font-size:1rem;
+    line-height:1.7;
+    color:#eee;
+    overflow-y:auto;
+    white-space:pre-line;
   }
-  .screen.active { opacity: 1; z-index: 2; }
+  #mainText p{
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 1.2s ease, transform 1.2s ease;
+    margin-bottom:1.1em;
+  }
+  #mainText p.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .continue{
+    position:absolute;
+    bottom:30px;
+    font-size:.9rem;
+    opacity:0;
+    animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-  /* Texto inicial */
-  .text {
-    max-width: 620px;
-    width: 90%;
-    line-height: 1.7;
-    font-size: 1.05rem;
-    font-weight: 400;
-    color: #eee;
-    text-align: left;
-    white-space: pre-line;
-    opacity: 0;
-    transition: opacity 1.8s ease;
+  /* slides */
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transition:opacity .8s ease;
+    text-align:center;
   }
-
-  .text.show { opacity: 1; }
-
-  .continue {
-    position: absolute;
-    bottom: 30px;
-    font-size: 0.9rem;
-    opacity: 0.5;
-    animation: pulse 1.5s infinite;
+  .slide.active{opacity:1;z-index:3;}
+  .slide img{
+    width:90%;
+    max-width:420px;
+    border-radius:10px;
+    box-shadow:0 0 40px rgba(255,255,255,.06);
+    margin-bottom:18px;
   }
-
-  @keyframes pulse {
-    0%,100% { opacity: 0.4; }
-    50% { opacity: 1; }
+  .caption{
+    font-weight:600;
+    color:#eaeaea;
+    max-width:80%;
   }
-
-  /* Slides */
-  .slide {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: opacity var(--fade);
-    text-align: center;
-    padding: 20px;
+  .sound-btn{
+    position:fixed;
+    top:16px;right:16px;
+    background:rgba(0,0,0,.3);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.3);
+    border-radius:6px;
+    font-size:.9rem;
+    padding:6px 10px;
+    cursor:pointer;
   }
-  .slide.active { opacity: 1; z-index: 2; }
-  .slide img {
-    width: 90%;
-    max-width: 420px;
-    border-radius: 10px;
-    object-fit: cover;
-    margin-bottom: 22px;
-    box-shadow: 0 0 40px rgba(255,255,255,0.05);
-  }
-  .caption {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    color: #eaeaea;
-    max-width: 90%;
-  }
-
-  .sound-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    font-size: 0.9rem;
-    padding: 6px 10px;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 6px;
-    color: #fff;
-    background: rgba(0,0,0,0.3);
-    cursor: pointer;
-  }
-  .sound-btn.off { opacity: 0.4; }
+  .sound-btn.off{opacity:.4;}
 </style>
 </head>
 <body>
-
-<!-- Som -->
 <button id="soundBtn" class="sound-btn off">🔇 Som</button>
 <audio id="bgSound" src="memorias.mp3" loop preload="auto"></audio>
 
-<!-- Tela inicial (texto) -->
+<!-- tela de texto -->
 <div id="intro" class="screen active">
-  <div id="mainText" class="text">
+  <div id="mainText">
 pra minha lalinha.
 ou larovski. namurada. paixão. amô. nabinho.
 
@@ -152,123 +142,87 @@ quero que seis meses sejam apenas uma gotinha do oceano de tempo que vamos ter j
 
 te amo mais que tudo, paixão.
   </div>
-  <div id="continue" class="continue" style="display:none">(toque para continuar)</div>
+  <div id="continue" class="continue">(toque para continuar)</div>
 </div>
 
-<!-- Slides -->
+<!-- slides -->
 <div id="slides">
-  <div class="slide">
-    <img src="foto1.jpg" alt="memória 1">
+  <div class="slide active">
+    <img src="foto1.jpg" alt="1">
     <div class="caption">A gente nem imaginava o que viria.</div>
   </div>
   <div class="slide">
-    <img src="foto2.jpg" alt="memória 2">
+    <img src="foto2.jpg" alt="2">
     <div class="caption">E olha só onde fomos parar.</div>
   </div>
   <div class="slide">
-    <img src="foto3.jpg" alt="memória 3">
+    <img src="foto3.jpg" alt="3">
     <div class="caption">Cada lembrança cabe num instante.</div>
   </div>
   <div class="slide">
-    <img src="foto4.jpg" alt="memória 4">
+    <img src="foto4.jpg" alt="4">
     <div class="caption">Demorei, mas finalmente fiz isso.</div>
   </div>
 </div>
 
 <script>
-const bgSound = document.getElementById('bgSound');
-const soundBtn = document.getElementById('soundBtn');
-let soundOn = false;
+const bgSound=document.getElementById('bgSound');
+const soundBtn=document.getElementById('soundBtn');
+let soundOn=false;
+soundBtn.onclick=()=>{
+  if(!soundOn){bgSound.volume=0.4;bgSound.play().catch(()=>{});soundBtn.textContent='🔊 Som';soundBtn.classList.remove('off');soundOn=true;}
+  else{bgSound.pause();soundBtn.textContent='🔇 Som';soundBtn.classList.add('off');soundOn=false;}
+};
+function unlockAudio(){
+  bgSound.play().then(()=>{bgSound.pause();soundBtn.classList.remove('off');}).catch(()=>{});
+}
+document.body.addEventListener('click',unlockAudio,{once:true});
+document.body.addEventListener('touchend',unlockAudio,{once:true});
 
-soundBtn.addEventListener('click', () => {
-  if (!soundOn) {
-    bgSound.volume = 0.4;
-    bgSound.play().catch(()=>{});
-    soundBtn.textContent = '🔊 Som';
-    soundBtn.classList.remove('off');
-    soundOn = true;
-  } else {
-    bgSound.pause();
-    soundBtn.textContent = '🔇 Som';
-    soundBtn.classList.add('off');
-    soundOn = false;
+/* texto progressivo */
+const intro=document.getElementById('intro');
+const mainText=document.getElementById('mainText');
+const continueEl=document.getElementById('continue');
+let paras=mainText.textContent.trim().split(/\n+/).filter(Boolean);
+mainText.textContent='';
+paras=paras.map(t=>t.trim());
+let i=0;
+function showNext(){
+  if(i>=paras.length){continueEl.style.opacity=1;return;}
+  const p=document.createElement('p');
+  p.textContent=paras[i];
+  mainText.appendChild(p);
+  setTimeout(()=>p.classList.add('show'),50);
+  i++;
+  setTimeout(showNext,2000+Math.random()*2000);
+}
+window.onload=()=>setTimeout(showNext,800);
+
+/* slides */
+const slides=document.querySelectorAll('.slide');
+let showingSlides=false;
+let cur=0;
+intro.onclick=()=>{
+  if(i>=paras.length&&!showingSlides){
+    showingSlides=true;
+    intro.classList.remove('active');
+    slides[cur].classList.add('active');
   }
-});
-
-/* Texto inicial com fade progressivo */
-const textEl = document.getElementById('mainText');
-const introEl = document.getElementById('intro');
-const continueEl = document.getElementById('continue');
-const paragraphs = textEl.innerHTML.split('\n\n').filter(p=>p.trim()!=='');
-textEl.innerHTML = '';
-let idx = 0;
-
-function showNextParagraph() {
-  if (idx >= paragraphs.length) {
-    setTimeout(()=> continueEl.style.display = 'block', 1500);
-    return;
-  }
-  const p = document.createElement('p');
-  p.textContent = paragraphs[idx].trim();
-  p.className = 'show';
-  textEl.appendChild(p);
-  setTimeout(()=> p.classList.add('show'), 50);
-  idx++;
-  setTimeout(showNextParagraph, 2000 + Math.random()*2000);
+};
+function showSlide(n){
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));
 }
-
-window.addEventListener('load', () => {
-  setTimeout(showNextParagraph, 1000);
-  document.body.addEventListener('click', unlockAudio, { once: true });
-  document.body.addEventListener('touchend', unlockAudio, { once: true });
+function nextSlide(){if(!showingSlides)return;cur=Math.min(cur+1,slides.length-1);showSlide(cur);}
+function prevSlide(){if(!showingSlides)return;cur=Math.max(cur-1,0);showSlide(cur);}
+let startX=0;
+document.body.onclick=nextSlide;
+document.body.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+document.body.addEventListener('touchend',e=>{
+  if(!showingSlides)return;
+  const dx=e.changedTouches[0].clientX-startX;
+  if(dx<-40)nextSlide();
+  if(dx>40)prevSlide();
 });
-
-function unlockAudio() {
-  bgSound.play().then(()=> {
-    bgSound.pause();
-    soundBtn.classList.remove('off');
-  }).catch(()=>{});
-}
-
-/* Transição para slides */
-const slides = document.querySelectorAll('.slide');
-let current = 0;
-let showingSlides = false;
-
-introEl.addEventListener('click', () => {
-  if (idx >= paragraphs.length && !showingSlides) {
-    showingSlides = true;
-    introEl.classList.remove('active');
-    slides[0].classList.add('active');
-  }
-});
-
-document.body.addEventListener('click', () => {
-  if (!showingSlides) return;
-  nextSlide();
-});
-
-let startX = 0;
-document.body.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-document.body.addEventListener('touchend', e => {
-  if (!showingSlides) return;
-  const dx = e.changedTouches[0].clientX - startX;
-  if (dx < -40) nextSlide();
-  if (dx > 40) prevSlide();
-});
-
-function nextSlide() {
-  slides[current].classList.remove('active');
-  current++;
-  if (current >= slides.length) current = slides.length - 1;
-  slides[current].classList.add('active');
-}
-function prevSlide() {
-  slides[current].classList.remove('active');
-  current--;
-  if (current < 0) current = 0;
-  slides[current].classList.add('active');
-}
 </script>
 </body>
 </html>

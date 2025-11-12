@@ -8,25 +8,57 @@
 <style>
   :root {--bg:#000;--text:#fff;}
   *{margin:0;padding:0;box-sizing:border-box;}
-  html,body{height:100%;width:100%;background:var(--bg);color:var(--text);
-    font-family:'Inter',sans-serif;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    opacity:0;transition:opacity 1s ease;}
+  html,body{
+    height:100%;width:100%;
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .screen{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    opacity:0;transition:opacity 1s ease;
+  }
   .screen.active{opacity:1;z-index:2;}
-  #mainText{max-width:640px;width:90%;text-align:left;font-size:1rem;line-height:1.7;color:#eee;overflow-y:auto;white-space:pre-line;}
-  #mainText p{opacity:0;transform:translateY(10px);transition:opacity 1.2s ease, transform 1.2s ease;margin-bottom:1.1em;}
+  #mainText{
+    max-width:640px;width:90%;
+    text-align:left;font-size:1rem;
+    line-height:1.7;color:#eee;
+    overflow-y:auto;white-space:pre-line;
+  }
+  #mainText p{
+    opacity:0;transform:translateY(10px);
+    transition:opacity 1.2s ease, transform 1.2s ease;
+    margin-bottom:1.1em;
+  }
   #mainText p.show{opacity:1;transform:translateY(0);}
-  #startBtn{margin-top:40px;font-size:1rem;font-weight:600;color:#000;background:#fff;border:none;border-radius:8px;
-    padding:12px 28px;cursor:pointer;opacity:0;transition:opacity .8s ease;}
+  #startBtn{
+    margin-top:40px;font-size:1rem;font-weight:600;
+    color:#000;background:#fff;border:none;
+    border-radius:8px;padding:12px 28px;cursor:pointer;
+    opacity:0;transition:opacity .8s ease;
+  }
   #startBtn.show{opacity:1;}
-  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    opacity:0;transition:opacity .8s ease;}
+  .slide{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    opacity:0;transition:opacity .8s ease;
+  }
   .slide.active{opacity:1;z-index:3;}
-  .slide img{width:90%;max-width:420px;border-radius:10px;box-shadow:0 0 40px rgba(255,255,255,.06);}
+  .slide img{
+    width:90%;max-width:420px;
+    border-radius:10px;
+    box-shadow:0 0 40px rgba(255,255,255,.06);
+  }
 </style>
 </head>
 <body>
 <audio id="bgSound" src="musica.mp3" preload="auto" loop></audio>
+
+<!-- Tela inicial -->
 <div id="intro" class="screen active">
   <div id="mainText">
 pra minha lalinha.
@@ -64,6 +96,8 @@ te amo mais que tudo, paixão.
   </div>
   <button id="startBtn">ver nossas fotos</button>
 </div>
+
+<!-- Slides -->
 <div id="slides">
   <div class="slide"><img src="foto1.jpg" alt=""></div>
   <div class="slide"><img src="foto2.jpg" alt=""></div>
@@ -72,6 +106,7 @@ te amo mais que tudo, paixão.
   <div class="slide"><img src="foto5.jpg" alt=""></div>
   <div class="slide"><img src="foto6.jpg" alt=""></div>
 </div>
+
 <script>
 const bgSound=document.getElementById('bgSound');
 const intro=document.getElementById('intro');
@@ -79,21 +114,63 @@ const mainText=document.getElementById('mainText');
 const startBtn=document.getElementById('startBtn');
 const slides=document.querySelectorAll('.slide');
 let showingSlides=false;let current=0;
+
+/* ==== Fade-in no som desde o começo ==== */
+window.addEventListener('load',()=> {
+  bgSound.volume=0;
+  const playPromise = bgSound.play();
+  if(playPromise!==undefined){
+    playPromise.then(()=>{
+      let v=0;
+      const fade=setInterval(()=>{
+        v+=0.02;
+        if(v>=0.4){v=0.4;clearInterval(fade);}
+        bgSound.volume=v;
+      },150);
+    }).catch(()=>{});
+  }
+});
+
+/* ==== Texto progressivo ==== */
 let paras=mainText.textContent.trim().split(/\n+/).filter(Boolean);
-mainText.textContent='';let i=0;
-function showNext(){if(i>=paras.length){setTimeout(()=>startBtn.classList.add('show'),1500);return;}
-  const p=document.createElement('p');p.textContent=paras[i];mainText.appendChild(p);
-  setTimeout(()=>p.classList.add('show'),50);i++;setTimeout(showNext,2000+Math.random()*2000);}
+mainText.textContent='';
+let i=0;
+function showNext(){
+  if(i>=paras.length){
+    setTimeout(()=>startBtn.classList.add('show'),1500);
+    return;
+  }
+  const p=document.createElement('p');
+  p.textContent=paras[i];
+  mainText.appendChild(p);
+  setTimeout(()=>p.classList.add('show'),50);
+  i++;
+  setTimeout(showNext,2000+Math.random()*2000);
+}
 window.onload=()=>setTimeout(showNext,800);
-function fadeInAudio(){bgSound.volume=0;bgSound.play().catch(()=>{});let v=0;
-  const fade=setInterval(()=>{v+=0.02;if(v>=0.4){v=0.4;clearInterval(fade);}bgSound.volume=v;},150);}
-function showSlide(n){slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));}
+
+/* ==== Mostrar slides ==== */
+function showSlide(n){
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));
+}
 function nextSlide(){if(!showingSlides)return;current=Math.min(current+1,slides.length-1);showSlide(current);}
 function prevSlide(){if(!showingSlides)return;current=Math.max(current-1,0);showSlide(current);}
-startBtn.onclick=()=>{fadeInAudio();intro.classList.remove('active');showingSlides=true;slides[0].classList.add('active');};
-let startX=0;document.body.onclick=()=>nextSlide();
+
+startBtn.onclick=()=>{
+  intro.classList.remove('active');
+  showingSlides=true;
+  slides[0].classList.add('active');
+};
+
+let startX=0;
+document.body.onclick=()=>nextSlide();
 document.body.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
-document.body.addEventListener('touchend',e=>{if(!showingSlides)return;
-  const dx=e.changedTouches[0].clientX-startX;if(dx<-40)nextSlide();if(dx>40)prevSlide();});
+document.body.addEventListener('touchend',e=>{
+  if(!showingSlides)return;
+  const dx=e.changedTouches[0].clientX-startX;
+  if(dx<-40)nextSlide();
+  if(dx>40)prevSlide();
+});
 </script>
-</body></html>
+</body>
+</html>

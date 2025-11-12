@@ -36,7 +36,7 @@
   }
   .img-bg img{
     width:85%;max-width:800px;border-radius:10px;
-    opacity:0;transition:opacity 1.5s ease;
+    opacity:0;transition:opacity 2s ease;
     box-shadow:0 30px 80px rgba(0,0,0,.6);
   }
   .img-bg img.show{opacity:1;}
@@ -118,9 +118,12 @@ const finalText = document.getElementById('finalText');
 
 const totalDuration = 110000; // 1m50s
 const fadeOutDuration = 5000;
-const typeSpeed = 55;
-const eraseSpeed = 35;
-const pauseTime = 3000;
+const imgCount = imgs.length;
+const imgInterval = totalDuration / imgCount;
+
+const typeSpeed = 45;
+const eraseSpeed = 30;
+const pauseTime = 2500;
 
 const messages = [
   "pra minha lalinha.\nou larovski. namurada. paixão. amô. nabinho.",
@@ -134,12 +137,11 @@ const messages = [
 const finalMessage = "obrigado por existir.\npor ser lar.\npor ser minha paz.\n\n— seu eterno tomatinho";
 
 function wait(ms){return new Promise(r=>setTimeout(r,ms));}
-
 async function typeText(msg){
   textEl.textContent = "";
-  for(let char of msg){ textEl.textContent += char; await wait(typeSpeed); }
+  for(let char of msg){ textEl.textContent += char; await wait(typeSpeed);}
   await wait(pauseTime);
-  for(let i=msg.length;i>=0;i--){ textEl.textContent = msg.slice(0,i); await wait(eraseSpeed); }
+  for(let i=msg.length;i>=0;i--){ textEl.textContent = msg.slice(0,i); await wait(eraseSpeed);}
 }
 
 // música
@@ -163,43 +165,34 @@ function fadeOutMusic(){
   }, fadeOutDuration/steps);
 }
 
-// garantir que a tela fique ligada
 async function keepAwake(){
-  try { if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); }
-  catch(e){}
+  try { if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){}
 }
 
-// timeline sincronizada
 async function startShow(){
   keepAwake();
   startScreen.style.display='none';
   try { await audio.play(); } catch(e){}
   fadeAudio(0,0.45,1500);
 
-  const imgCount = imgs.length;
-  const sectionLength = (totalDuration - fadeOutDuration - 7000) / imgCount;
-
   const startTime = performance.now();
 
-  for(let i=0;i<imgCount;i++){
-    imgs.forEach((img,idx)=>img.classList.toggle('show',idx===i));
-    const sectionStart = startTime + i*sectionLength;
-    const sectionEnd = sectionStart + sectionLength;
-    const msg = messages[i];
-    const loop = (async ()=>{
-      const t0 = performance.now();
-      await typeText(msg);
-      const elapsed = performance.now()-t0;
-      const remaining = Math.max(0, sectionEnd - performance.now());
-      await wait(remaining);
-    })();
-    await loop;
+  // troca de imagem independente
+  imgs[0].classList.add('show');
+  for(let i=1;i<imgCount;i++){
+    setTimeout(()=>{
+      imgs.forEach((img,idx)=>img.classList.toggle('show',idx===i));
+    }, i*imgInterval);
+  }
+
+  // digitação sequencial
+  for(let i=0;i<messages.length;i++){
+    await typeText(messages[i]);
   }
 
   fadeEnd.classList.add('show');
   fadeOutMusic();
 
-  // texto final
   finalText.textContent="";
   for(let c of finalMessage){ finalText.textContent += c; await wait(70); }
 }

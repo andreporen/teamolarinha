@@ -71,8 +71,10 @@
     color:#fff;
     font-weight:600;
     letter-spacing:0.5px;
-    animation:fadeInText 4s ease forwards;
+    animation:fadeInText 5s ease forwards;
     animation-delay:2s;
+    white-space:pre-line;
+    text-align:center;
   }
   @keyframes fadeInText{
     to{opacity:1;}
@@ -101,7 +103,7 @@
   <div class="overlay"></div>
   <div class="text" id="text"></div>
   <div class="fade-end" id="fadeEnd">
-    <div class="final-text">seu eterno tomatinho</div>
+    <div class="final-text" id="finalText"></div>
   </div>
 </div>
 
@@ -114,12 +116,14 @@ const audio = document.getElementById('bgAudio');
 const textEl = document.getElementById('text');
 const imgs = [...document.querySelectorAll('.img-bg img')];
 const fadeEnd = document.getElementById('fadeEnd');
+const finalText = document.getElementById('finalText');
 
-const totalDuration = 107000;
-const fadeOutDuration = 4000;
+const totalDuration = 107000; // 1m47s
+const fadeOutDuration = 5000; // fade final
 const typeSpeed = 40;
 const eraseSpeed = 25;
 const pauseTime = 2000;
+
 const messages = [
   "pra minha lalinha.\nou larovski. namurada. paixão. amô. nabinho.",
   "é tão leve com você que até parece estranho tentar escrever algo sério.\nparece que nos conhecemos há tanto tempo que até esqueço que teve um antes.",
@@ -129,7 +133,9 @@ const messages = [
   "te amo mais que tudo, paixão."
 ];
 
-// ===== manter a tela ligada =====
+const finalMessage = "obrigado por existir.\npor ser lar.\npor ser minha paz.\n\n— seu eterno tomatinho";
+
+// === manter a tela ligada ===
 async function keepAwake() {
   try {
     if ('wakeLock' in navigator) {
@@ -138,7 +144,7 @@ async function keepAwake() {
   } catch(e) { console.log('WakeLock não disponível'); }
 }
 
-// ===== fades de áudio =====
+// === fades de áudio ===
 function fadeAudio(from,to,duration){
   const steps = Math.max(8, Math.round(duration/100));
   let i=0;
@@ -149,16 +155,20 @@ function fadeAudio(from,to,duration){
   }, duration/steps);
 }
 function fadeOutMusic(){
+  const from = audio.volume;
   const steps = Math.max(8, Math.round(fadeOutDuration/100));
-  let i=0, from = audio.volume;
+  let i=0;
   const iv = setInterval(()=>{
     i++;
     audio.volume = from*(1 - i/steps);
-    if(i>=steps){ audio.pause(); clearInterval(iv);}
+    if(i>=steps){ audio.volume = 0; audio.pause(); clearInterval(iv);}
   }, fadeOutDuration/steps);
 }
 
-// ===== typewriter =====
+// === util ===
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// === typewriter ===
 async function typeText(msg){
   textEl.textContent = "";
   for(let char of msg){
@@ -171,20 +181,37 @@ async function typeText(msg){
     await wait(eraseSpeed);
   }
 }
-function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 
-// ===== execução principal =====
+// === main ===
 async function startShow(){
   keepAwake();
   startScreen.style.display='none';
   try { await audio.play(); } catch(e){}
-  fadeAudio(0,0.4,1500);
-  for(let i=0;i<imgs.length;i++){
+  fadeAudio(0,0.5,1500);
+  const imgCount = imgs.length;
+
+  // tempo total de cada trecho
+  const sectionTime = (totalDuration - fadeOutDuration - 7000) / imgCount;
+
+  for(let i=0;i<imgCount;i++){
     imgs.forEach((img,idx)=>img.classList.toggle('show',idx===i));
+    const t0 = performance.now();
     await typeText(messages[i]);
+    const elapsed = performance.now() - t0;
+    const delay = Math.max(0, sectionTime - elapsed);
+    await wait(delay);
   }
-  fadeOutMusic();
+
+  // texto final e fade
   fadeEnd.classList.add('show');
+  fadeOutMusic();
+
+  // digitação final lenta
+  finalText.textContent = "";
+  for(let c of finalMessage){
+    finalText.textContent += c;
+    await wait(60);
+  }
 }
 
 btn.onclick = ()=>startShow();

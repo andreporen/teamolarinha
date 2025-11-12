@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>pra minha lalinha</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {--bg:#000;--text:#fff;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;width:100%;background:var(--bg);color:var(--text);
+    font-family:'Inter',sans-serif;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;transition:opacity 1s ease;}
+  .screen.active{opacity:1;z-index:2;}
+  #mainText{max-width:640px;width:90%;text-align:left;font-size:1rem;line-height:1.7;color:#eee;overflow-y:auto;white-space:pre-line;}
+  #mainText p{opacity:0;transform:translateY(10px);transition:opacity 1.2s ease, transform 1.2s ease;margin-bottom:1.1em;}
+  #mainText p.show{opacity:1;transform:translateY(0);}
+  #startBtn{margin-top:40px;font-size:1rem;font-weight:600;color:#000;background:#fff;border:none;border-radius:8px;
+    padding:12px 28px;cursor:pointer;opacity:0;transition:opacity .8s ease;}
+  #startBtn.show{opacity:1;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;transition:opacity .8s ease;}
+  .slide.active{opacity:1;z-index:3;}
+  .slide img{width:90%;max-width:420px;border-radius:10px;box-shadow:0 0 40px rgba(255,255,255,.06);}
+</style>
+</head>
+<body>
+<audio id="bgSound" src="musica.mp3" preload="auto" loop></audio>
+<div id="intro" class="screen active">
+  <div id="mainText">
+pra minha lalinha.
+ou larovski. namurada. paixão. amô. nabinho.
+
+é tão leve com você que até parece estranho tentar escrever algo sério.
+parece que nos conhecemos há tanto tempo que até esqueço que teve um antes
+porque, de algum jeito, desde que você chegou, tudo passou a fazer mais sentido.
+
+seis meses, paixão
+seis meses que a gente se tem e a minha vida já não existe mais sem você dentro dela.
+você virou rotina, virou pensamento constante, virou meu porto seguro 
+os momentos difíceis vêm e vão, mas basta lembrar de você pra tudo ficar um pouco mais leve, mais real.
+
+penso nas viagens que ainda temos pra fazer, nos filmes que prometemos ver e sempre deixamos pra depois, no nosso passeio de bicicleta.
+penso em você me inspecionando, rindo do meu jeito distraído.
+penso no seu sorriso, nas nossas piadas internas, nas nossas bobeiragens que só a gente entende.
+
+você me faz sentir inteiro.
+mais que isso, compreendido.
+e isso, pra mim, é raro.
+sempre me senti meio deslocado, meio fora de lugar, como se o mundo fosse sempre um pouco grande demais pra caber direito em mim.
+mas aí vem você, com teu carinho, tua sinceridade, tua forma tão genuína e tão bonita de estar no mundo,
+e tudo se encaixa.
+me sinto no meu lugar. contigo.
+
+não me vejo mais sem o seu cheirinho, sem a sua voz que me acalma,
+sem o jeito que você fala meu nome, sem nossas conversas que duram horas e parecem minutos.
+sem o teu toque, teu olhar, tua risada.
+sem as nossas bobeiragens, sem nosso amor, sem você
+
+quero que seis meses sejam apenas uma gotinha do oceano de tempo que vamos ter juntos
+
+te amo mais que tudo, paixão.
+  </div>
+  <button id="startBtn">ver nossas fotos</button>
+</div>
+<div id="slides">
+  <div class="slide"><img src="foto1.jpg" alt=""></div>
+  <div class="slide"><img src="foto2.jpg" alt=""></div>
+  <div class="slide"><img src="foto3.jpg" alt=""></div>
+  <div class="slide"><img src="foto4.jpg" alt=""></div>
+  <div class="slide"><img src="foto5.jpg" alt=""></div>
+  <div class="slide"><img src="foto6.jpg" alt=""></div>
+</div>
+<script>
+const bgSound=document.getElementById('bgSound');
+const intro=document.getElementById('intro');
+const mainText=document.getElementById('mainText');
+const startBtn=document.getElementById('startBtn');
+const slides=document.querySelectorAll('.slide');
+let showingSlides=false;let current=0;
+let paras=mainText.textContent.trim().split(/\n+/).filter(Boolean);
+mainText.textContent='';let i=0;
+function showNext(){if(i>=paras.length){setTimeout(()=>startBtn.classList.add('show'),1500);return;}
+  const p=document.createElement('p');p.textContent=paras[i];mainText.appendChild(p);
+  setTimeout(()=>p.classList.add('show'),50);i++;setTimeout(showNext,2000+Math.random()*2000);}
+window.onload=()=>setTimeout(showNext,800);
+function fadeInAudio(){bgSound.volume=0;bgSound.play().catch(()=>{});let v=0;
+  const fade=setInterval(()=>{v+=0.02;if(v>=0.4){v=0.4;clearInterval(fade);}bgSound.volume=v;},150);}
+function showSlide(n){slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));}
+function nextSlide(){if(!showingSlides)return;current=Math.min(current+1,slides.length-1);showSlide(current);}
+function prevSlide(){if(!showingSlides)return;current=Math.max(current-1,0);showSlide(current);}
+startBtn.onclick=()=>{fadeInAudio();intro.classList.remove('active');showingSlides=true;slides[0].classList.add('active');};
+let startX=0;document.body.onclick=()=>nextSlide();
+document.body.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+document.body.addEventListener('touchend',e=>{if(!showingSlides)return;
+  const dx=e.changedTouches[0].clientX-startX;if(dx<-40)nextSlide();if(dx>40)prevSlide();});
+</script>
+</body></html>

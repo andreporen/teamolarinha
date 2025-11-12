@@ -3,174 +3,254 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>pra minha lalinha</title>
+<title>pra minha lalinha — memórias</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {--bg:#000;--text:#fff;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html,body{
-    height:100%;width:100%;
-    background:var(--bg);color:var(--text);
-    font-family:'Inter',sans-serif;
-    overflow:hidden;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .screen{
-    position:absolute;inset:0;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    opacity:0;transition:opacity 1s ease;
-  }
-  .screen.active{opacity:1;z-index:2;}
-  #mainText{
-    max-width:640px;width:90%;
-    text-align:left;font-size:1rem;
-    line-height:1.7;color:#eee;
-    overflow-y:auto;white-space:pre-line;
-  }
-  #mainText p{
-    opacity:0;transform:translateY(10px);
-    transition:opacity 1.2s ease, transform 1.2s ease;
-    margin-bottom:1.1em;
-  }
-  #mainText p.show{opacity:1;transform:translateY(0);}
-  #startBtn{
-    margin-top:40px;font-size:1rem;font-weight:600;
-    color:#000;background:#fff;border:none;
-    border-radius:8px;padding:12px 28px;cursor:pointer;
-    opacity:0;transition:opacity .8s ease;
-  }
-  #startBtn.show{opacity:1;}
-  .slide{
-    position:absolute;inset:0;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    opacity:0;transition:opacity .8s ease;
-  }
-  .slide.active{opacity:1;z-index:3;}
-  .slide img{
-    width:90%;max-width:420px;
-    border-radius:10px;
-    box-shadow:0 0 40px rgba(255,255,255,.06);
+  :root{--bg:#000;--text:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .stage{position:relative;height:100vh;width:100vw;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  /* imagem grande centralizada com margem */
+  .image-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .image-wrap img{width:85%;max-width:900px;height:auto;border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,.6);opacity:0;transition:opacity 800ms ease}
+  .image-wrap img.show{opacity:1}
+  /* overlay escuro para legibilidade do texto */
+  .dark-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0.85));pointer-events:none}
+  /* texto container */
+  .text-frame{position:relative;z-index:6;max-width:760px;width:86%;height:78vh;padding:36px 28px;overflow:hidden}
+  .text-scroll{height:100%;overflow:auto;padding-right:12px;scroll-behavior: auto}
+  .text-scroll p{color:#eee;font-size:18px;line-height:1.75;margin-bottom:1.1em;opacity:.98}
+  /* cue (invisible but useful for accessibility) */
+  .sr-only{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  /* final fade overlay */
+  .end-fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,1));pointer-events:none;opacity:0;transition:opacity 1s ease}
+  .end-fade.show{opacity:1}
+  @media (max-width:520px){
+    .text-scroll p{font-size:16px}
+    .text-frame{padding:22px}
+    .image-wrap img{width:92%}
   }
 </style>
 </head>
 <body>
-<audio id="bgSound" src="musica.mp3" preload="auto" loop></audio>
+  <div class="stage" id="stage" role="main" aria-live="polite">
+    <div class="image-wrap" id="imageWrap" aria-hidden="true">
+      <img id="img1" src="foto1.jpg" alt="">
+      <img id="img2" src="foto2.jpg" alt="">
+      <img id="img3" src="foto3.jpg" alt="">
+      <img id="img4" src="foto4.jpg" alt="">
+      <img id="img5" src="foto5.jpg" alt="">
+      <img id="img6" src="foto6.jpg" alt="">
+    </div>
 
-<!-- Tela inicial -->
-<div id="intro" class="screen active">
-  <div id="mainText">
-pra minha lalinha.
-ou larovski. namurada. paixão. amô. nabinho.
+    <div class="dark-overlay" aria-hidden="true"></div>
 
-é tão leve com você que até parece estranho tentar escrever algo sério.
+    <div class="text-frame" id="textFrame">
+      <div id="textScroll" class="text-scroll" tabindex="0" aria-label="Memórias de Tomatinho">
+        <p>pra minha lalinha.
+ou larovski. namurada. paixão. amô. nabinho.</p>
+
+        <p>é tão leve com você que até parece estranho tentar escrever algo sério.
 parece que nos conhecemos há tanto tempo que até esqueço que teve um antes
-porque, de algum jeito, desde que você chegou, tudo passou a fazer mais sentido.
+porque, de algum jeito, desde que você chegou, tudo passou a fazer mais sentido.</p>
 
-seis meses, paixão
+        <p>seis meses, paixão
 seis meses que a gente se tem e a minha vida já não existe mais sem você dentro dela.
 você virou rotina, virou pensamento constante, virou meu porto seguro 
-os momentos difíceis vêm e vão, mas basta lembrar de você pra tudo ficar um pouco mais leve, mais real.
+os momentos difíceis vêm e vão, mas basta lembrar de você pra tudo ficar um pouco mais leve, mais real.</p>
 
-penso nas viagens que ainda temos pra fazer, nos filmes que prometemos ver e sempre deixamos pra depois, no nosso passeio de bicicleta.
+        <p>penso nas viagens que ainda temos pra fazer, nos filmes que prometemos ver e sempre deixamos pra depois, no nosso passeio de bicicleta.
 penso em você me inspecionando, rindo do meu jeito distraído.
-penso no seu sorriso, nas nossas piadas internas, nas nossas bobeiragens que só a gente entende.
+penso no seu sorriso, nas nossas piadas internas, nas nossas bobeiragens que só a gente entende.</p>
 
-você me faz sentir inteiro.
+        <p>você me faz sentir inteiro.
 mais que isso, compreendido.
 e isso, pra mim, é raro.
 sempre me senti meio deslocado, meio fora de lugar, como se o mundo fosse sempre um pouco grande demais pra caber direito em mim.
 mas aí vem você, com teu carinho, tua sinceridade, tua forma tão genuína e tão bonita de estar no mundo,
 e tudo se encaixa.
-me sinto no meu lugar. contigo.
+me sinto no meu lugar. contigo.</p>
 
-não me vejo mais sem o seu cheirinho, sem a sua voz que me acalma,
+        <p>não me vejo mais sem o seu cheirinho, sem a sua voz que me acalma,
 sem o jeito que você fala meu nome, sem nossas conversas que duram horas e parecem minutos.
 sem o teu toque, teu olhar, tua risada.
-sem as nossas bobeiragens, sem nosso amor, sem você
+sem as nossas bobeiragens, sem nosso amor, sem você</p>
 
-quero que seis meses sejam apenas uma gotinha do oceano de tempo que vamos ter juntos
+        <p>quero que seis meses sejam apenas uma gotinha do oceano de tempo que vamos ter juntos</p>
 
-te amo mais que tudo, paixão.
+        <p>te amo mais que tudo, paixão.</p>
+      </div>
+    </div>
+
+    <div class="end-fade" id="endFade" aria-hidden="true"></div>
+    <div class="sr-only" id="status" aria-live="polite"></div>
   </div>
-  <button id="startBtn">ver nossas fotos</button>
-</div>
 
-<!-- Slides -->
-<div id="slides">
-  <div class="slide"><img src="foto1.jpg" alt=""></div>
-  <div class="slide"><img src="foto2.jpg" alt=""></div>
-  <div class="slide"><img src="foto3.jpg" alt=""></div>
-  <div class="slide"><img src="foto4.jpg" alt=""></div>
-  <div class="slide"><img src="foto5.jpg" alt=""></div>
-  <div class="slide"><img src="foto6.jpg" alt=""></div>
-</div>
+  <!-- áudio -->
+  <audio id="bgAudio" src="musica.mp3" preload="auto"></audio>
 
 <script>
-const bgSound=document.getElementById('bgSound');
-const intro=document.getElementById('intro');
-const mainText=document.getElementById('mainText');
-const startBtn=document.getElementById('startBtn');
-const slides=document.querySelectorAll('.slide');
-let showingSlides=false;let current=0;
+/*
+  Controle de sincronização:
+  - totalDuration = 107000 ms (1m47s)
+  - fadeOutDuration = 4000 ms (fade-out no final)
+  - 6 imagens alternando uniformemente durante totalDuration
+  - texto auto-scroll de topo ao fim em totalDuration
+  - tentativa de autoplay + desbloqueio via primeira interação para iOS
+*/
 
-/* ==== Fade-in no som desde o começo ==== */
-window.addEventListener('load',()=> {
-  bgSound.volume=0;
-  const playPromise = bgSound.play();
-  if(playPromise!==undefined){
-    playPromise.then(()=>{
-      let v=0;
-      const fade=setInterval(()=>{
-        v+=0.02;
-        if(v>=0.4){v=0.4;clearInterval(fade);}
-        bgSound.volume=v;
-      },150);
-    }).catch(()=>{});
+const totalDuration = 107000; // ms
+const fadeOutDuration = 4000; // ms
+const imgCount = 6;
+const imgSwitchInterval = totalDuration / imgCount; // ms
+
+const audio = document.getElementById('bgAudio');
+audio.preload = 'auto';
+let audioCtx = null;
+let audioSourceConnected = false;
+let startedAt = null;
+let rafId = null;
+
+const imgs = [
+  document.getElementById('img1'),
+  document.getElementById('img2'),
+  document.getElementById('img3'),
+  document.getElementById('img4'),
+  document.getElementById('img5'),
+  document.getElementById('img6'),
+];
+
+const textScroll = document.getElementById('textScroll');
+const endFade = document.getElementById('endFade');
+const status = document.getElementById('status');
+
+// hide all images initially
+imgs.forEach(img => img.classList.remove('show'));
+
+// ==== audio unlock for iOS/Safari ====
+// we'll try to play on load; if blocked, this function will resume the AudioContext and start playback
+function setupAudioContext(){
+  if(audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // create media element source and connect to destination to allow control & ensure browser allows playback later
+    const src = audioCtx.createMediaElementSource(audio);
+    src.connect(audioCtx.destination);
+    audioSourceConnected = true;
+  } catch(e) {
+    // fallback if AudioContext not available
+    audioSourceConnected = false;
   }
-});
+}
 
-/* ==== Texto progressivo ==== */
-let paras=mainText.textContent.trim().split(/\n+/).filter(Boolean);
-mainText.textContent='';
-let i=0;
-function showNext(){
-  if(i>=paras.length){
-    setTimeout(()=>startBtn.classList.add('show'),1500);
-    return;
+// attempt autoplay with a gentle fade-in
+function tryStartAudioAuto(){
+  setupAudioContext();
+  audio.volume = 0;
+  const p = audio.play();
+  if (p !== undefined) {
+    p.then(() => {
+      // started successfully
+      fadeAudioTo(0.4, 1500);
+    }).catch(()=> {
+      // blocked — will wait for user gesture
+      // add touch/click listeners to unlock
+      document.body.addEventListener('touchstart', unlockAndStart, {passive:true, once:true});
+      document.body.addEventListener('click', unlockAndStart, {passive:true, once:true});
+    });
   }
-  const p=document.createElement('p');
-  p.textContent=paras[i];
-  mainText.appendChild(p);
-  setTimeout(()=>p.classList.add('show'),50);
-  i++;
-  setTimeout(showNext,2000+Math.random()*2000);
 }
-window.onload=()=>setTimeout(showNext,800);
 
-/* ==== Mostrar slides ==== */
-function showSlide(n){
-  slides.forEach((s,idx)=>s.classList.toggle('active',idx===n));
+// unlock function to be called on first touch/click
+function unlockAndStart(){
+  // resume audio context if suspended
+  try {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e){}
+  // start/resume audio and fade in
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
+  fadeAudioTo(0.4, 1500);
+  // also start the timeline if not already started
+  if (!startedAt) startTimeline();
 }
-function nextSlide(){if(!showingSlides)return;current=Math.min(current+1,slides.length-1);showSlide(current);}
-function prevSlide(){if(!showingSlides)return;current=Math.max(current-1,0);showSlide(current);}
 
-startBtn.onclick=()=>{
-  intro.classList.remove('active');
-  showingSlides=true;
-  slides[0].classList.add('active');
-};
+// fade audio volume to target in ms
+function fadeAudioTo(targetVolume = 0.4, duration = 1500){
+  const startVol = audio.volume || 0;
+  const diff = targetVolume - startVol;
+  const steps = Math.max(8, Math.round(duration / 100));
+  let step = 0;
+  const iv = setInterval(()=>{
+    step++;
+    audio.volume = Math.max(0, Math.min(1, startVol + diff * (step / steps)));
+    if(step >= steps) clearInterval(iv);
+  }, duration / steps);
+}
 
-let startX=0;
-document.body.onclick=()=>nextSlide();
-document.body.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
-document.body.addEventListener('touchend',e=>{
-  if(!showingSlides)return;
-  const dx=e.changedTouches[0].clientX-startX;
-  if(dx<-40)nextSlide();
-  if(dx>40)prevSlide();
-});
+// schedule fade out near the end
+function scheduleFadeOut(){
+  const fadeStart = startedAt + totalDuration - fadeOutDuration;
+  const now = performance.now();
+  const toWait = Math.max(0, fadeStart - now);
+  setTimeout(()=> {
+    // fade to 0 over fadeOutDuration
+    const initial = audio.volume;
+    const steps = Math.max(8, Math.round(fadeOutDuration / 100));
+    let s = 0;
+    const iv = setInterval(()=>{
+      s++;
+      audio.volume = Math.max(0, initial * (1 - s/steps));
+      if(s >= steps){ clearInterval(iv); audio.pause(); }
+    }, fadeOutDuration / steps);
+    // show final fade overlay
+    endFade.classList.add('show');
+  }, toWait);
+}
+
+// ==== timeline control: images + scroll ==== 
+function startTimeline(){
+  startedAt = performance.now();
+  scheduleFadeOut();
+  // start RAF-driven loop
+  function tick(){
+    const elapsed = performance.now() - startedAt;
+    const t = Math.min(elapsed, totalDuration);
+    // image index
+    const imgIndex = Math.min(imgCount-1, Math.floor((t / totalDuration) * imgCount));
+    imgs.forEach((im, idx) => {
+      if(idx === imgIndex) im.classList.add('show'); else im.classList.remove('show');
+    });
+    // scroll text proportionally
+    const scrollElement = textScroll;
+    const maxScroll = scrollElement.scrollHeight - scrollElement.clientHeight;
+    if(maxScroll > 0){
+      const progress = t / totalDuration;
+      scrollElement.scrollTop = Math.round(progress * maxScroll);
+    }
+    // accessibility status
+    status.textContent = `Tempo: ${Math.round(t/1000)}s / ${Math.round(totalDuration/1000)}s`;
+    if(t < totalDuration){
+      rafId = requestAnimationFrame(tick);
+    } else {
+      // finished
+      imgs.forEach(im => im.classList.remove('show'));
+      cancelAnimationFrame(rafId);
+    }
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+// Start everything:
+// - attempt autoplay now (may be blocked on iOS but unlock listeners will kick in)
+// - start the timeline immediately so the text auto-scrolls; if audio is blocked it will be started on first touch
+(function init(){
+  tryStartAudioAuto();
+  // if audio autoplay blocked, we still want the text and images to run automatically.
+  // BUT earlier you wanted audio to play on iOS — we have listeners that will start audio on first touch.
+  startTimeline();
+})();
+
 </script>
 </body>
 </html>

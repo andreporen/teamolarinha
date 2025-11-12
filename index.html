@@ -36,13 +36,13 @@
   }
   .img-bg img{
     width:85%;max-width:800px;border-radius:10px;
-    opacity:0;transition:opacity 1s ease;
+    opacity:0;transition:opacity 1.5s ease;
     box-shadow:0 30px 80px rgba(0,0,0,.6);
   }
   .img-bg img.show{opacity:1;}
   .overlay{
     position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.9));
+    background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.9));
     z-index:1;pointer-events:none;
   }
   .text{
@@ -71,14 +71,12 @@
     color:#fff;
     font-weight:600;
     letter-spacing:0.5px;
-    animation:fadeInText 5s ease forwards;
-    animation-delay:2s;
+    animation:fadeInText 6s ease forwards;
+    animation-delay:1s;
     white-space:pre-line;
     text-align:center;
   }
-  @keyframes fadeInText{
-    to{opacity:1;}
-  }
+  @keyframes fadeInText{to{opacity:1;}}
   @media(max-width:600px){
     .text{font-size:1rem;}
     .img-bg img{width:92%;}
@@ -91,8 +89,8 @@
   <button id="beginBtn">começar</button>
 </div>
 
-<div class="stage" id="stage">
-  <div class="img-bg" id="imgWrap">
+<div class="stage">
+  <div class="img-bg">
     <img src="foto1.jpg" alt="">
     <img src="foto2.jpg" alt="">
     <img src="foto3.jpg" alt="">
@@ -118,11 +116,11 @@ const imgs = [...document.querySelectorAll('.img-bg img')];
 const fadeEnd = document.getElementById('fadeEnd');
 const finalText = document.getElementById('finalText');
 
-const totalDuration = 107000; // 1m47s
+const totalDuration = 110000; // 1m50s
 const fadeOutDuration = 5000; // fade final
-const typeSpeed = 40;
-const eraseSpeed = 25;
-const pauseTime = 2000;
+const typeSpeed = 55; // mais lento
+const eraseSpeed = 35;
+const pauseTime = 3000; // pausa maior
 
 const messages = [
   "pra minha lalinha.\nou larovski. namurada. paixão. amô. nabinho.",
@@ -135,16 +133,13 @@ const messages = [
 
 const finalMessage = "obrigado por existir.\npor ser lar.\npor ser minha paz.\n\n— seu eterno tomatinho";
 
-// === manter a tela ligada ===
+// manter tela acordada
 async function keepAwake() {
-  try {
-    if ('wakeLock' in navigator) {
-      await navigator.wakeLock.request('screen');
-    }
-  } catch(e) { console.log('WakeLock não disponível'); }
+  try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); }
+  catch(e) {}
 }
 
-// === fades de áudio ===
+// fades de áudio
 function fadeAudio(from,to,duration){
   const steps = Math.max(8, Math.round(duration/100));
   let i=0;
@@ -161,57 +156,42 @@ function fadeOutMusic(){
   const iv = setInterval(()=>{
     i++;
     audio.volume = from*(1 - i/steps);
-    if(i>=steps){ audio.volume = 0; audio.pause(); clearInterval(iv);}
+    if(i>=steps){ audio.volume=0; audio.pause(); clearInterval(iv);}
   }, fadeOutDuration/steps);
 }
 
-// === util ===
 function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 
-// === typewriter ===
 async function typeText(msg){
-  textEl.textContent = "";
-  for(let char of msg){
-    textEl.textContent += char;
-    await wait(typeSpeed);
-  }
+  textEl.textContent="";
+  for(let char of msg){ textEl.textContent+=char; await wait(typeSpeed);}
   await wait(pauseTime);
-  for(let i=msg.length;i>=0;i--){
-    textEl.textContent = msg.slice(0,i);
-    await wait(eraseSpeed);
-  }
+  for(let i=msg.length;i>=0;i--){ textEl.textContent=msg.slice(0,i); await wait(eraseSpeed);}
 }
 
-// === main ===
 async function startShow(){
   keepAwake();
   startScreen.style.display='none';
   try { await audio.play(); } catch(e){}
-  fadeAudio(0,0.5,1500);
-  const imgCount = imgs.length;
+  fadeAudio(0,0.45,1500);
 
-  // tempo total de cada trecho
-  const sectionTime = (totalDuration - fadeOutDuration - 7000) / imgCount;
+  const imgCount = imgs.length;
+  const sectionTime = (totalDuration - fadeOutDuration - 8000)/imgCount;
 
   for(let i=0;i<imgCount;i++){
     imgs.forEach((img,idx)=>img.classList.toggle('show',idx===i));
-    const t0 = performance.now();
+    const t0=performance.now();
     await typeText(messages[i]);
-    const elapsed = performance.now() - t0;
-    const delay = Math.max(0, sectionTime - elapsed);
+    const elapsed=performance.now()-t0;
+    const delay=Math.max(0,sectionTime-elapsed);
     await wait(delay);
   }
 
-  // texto final e fade
   fadeEnd.classList.add('show');
   fadeOutMusic();
 
-  // digitação final lenta
-  finalText.textContent = "";
-  for(let c of finalMessage){
-    finalText.textContent += c;
-    await wait(60);
-  }
+  finalText.textContent="";
+  for(let c of finalMessage){ finalText.textContent+=c; await wait(70); }
 }
 
 btn.onclick = ()=>startShow();

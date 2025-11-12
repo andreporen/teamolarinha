@@ -40,7 +40,6 @@
     box-shadow:0 30px 80px rgba(0,0,0,.6);
     position:absolute;
   }
-  .img-bg img.show{opacity:1;}
   .overlay{
     position:absolute;inset:0;
     background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.9));
@@ -78,10 +77,6 @@
     text-align:center;
   }
   @keyframes fadeInText{to{opacity:1;}}
-  @media(max-width:600px){
-    .text{font-size:1rem;}
-    .img-bg img{width:92%;}
-  }
 </style>
 </head>
 <body>
@@ -106,12 +101,9 @@
   </div>
 </div>
 
-<audio id="bgAudio" src="musica.mp3" preload="auto"></audio>
-
 <script>
 const btn = document.getElementById('beginBtn');
 const startScreen = document.getElementById('start');
-const audio = document.getElementById('bgAudio');
 const textEl = document.getElementById('text');
 const imgs = [...document.querySelectorAll('.img-bg img')];
 const fadeEnd = document.getElementById('fadeEnd');
@@ -144,7 +136,27 @@ async function keepAwake(){
   try { if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){}
 }
 
-// fade cruzado sincronizado
+let audioCtx, gainNode, sourceNode;
+
+async function playWithControlledVolume() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const response = await fetch('musica.mp3');
+  const arrayBuffer = await response.arrayBuffer();
+  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  
+  sourceNode = audioCtx.createBufferSource();
+  sourceNode.buffer = audioBuffer;
+
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.35; // volume suave
+
+  sourceNode.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  sourceNode.start(0);
+  return audioBuffer.duration * 1000;
+}
+
 function startImageLoop(startTime,totalDuration){
   const imgCount = imgs.length;
   const segment = totalDuration / imgCount;
@@ -168,25 +180,18 @@ function startImageLoop(startTime,totalDuration){
 async function startShow(){
   keepAwake();
   startScreen.style.display='none';
-  audio.volume = 0.2; // 🎚 volume fixo e suave
-  try { await audio.play(); } catch(e){}
-  
-  // espera o áudio carregar pra saber a duração real
-  await new Promise(res => {
-    if(audio.readyState >= 1) res();
-    else audio.addEventListener('loadedmetadata', res, { once: true });
-  });
-
-  const totalDuration = audio.duration * 1000;
+  const totalDuration = await playWithControlledVolume();
   const startTime = performance.now();
   startImageLoop(startTime,totalDuration);
 
   for(let msg of messages){ await typeText(msg); }
 
   fadeEnd.classList.add('show');
-
   finalText.textContent="";
-  for(let c of finalMessage){ finalText.textContent += c; await wait(70); }
+  for(let c of "obrigado por me existir,\npor me amar\ne por me fazer feliz.\n\n— seu eterno tomatinho"){ 
+    finalText.textContent += c; 
+    await wait(70); 
+  }
 }
 
 btn.onclick = ()=>startShow();

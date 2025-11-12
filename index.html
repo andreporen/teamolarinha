@@ -117,8 +117,7 @@ const imgs = [...document.querySelectorAll('.img-bg img')];
 const fadeEnd = document.getElementById('fadeEnd');
 const finalText = document.getElementById('finalText');
 
-const totalDuration = 110000; // 1m50s
-const fadeOutDuration = 5000;
+const totalDuration = 114000; // 1m54s
 const typeSpeed = 45;
 const eraseSpeed = 30;
 const pauseTime = 2500;
@@ -151,16 +150,6 @@ function fadeAudio(from,to,duration){
     if(i>=steps) clearInterval(iv);
   }, duration/steps);
 }
-function fadeOutMusic(){
-  const from = audio.volume;
-  const steps = Math.max(8, Math.round(fadeOutDuration/100));
-  let i=0;
-  const iv = setInterval(()=>{
-    i++;
-    audio.volume = from*(1 - i/steps);
-    if(i>=steps){ audio.volume=0; audio.pause(); clearInterval(iv);}
-  }, fadeOutDuration/steps);
-}
 
 async function keepAwake(){
   try { if('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e){}
@@ -178,11 +167,11 @@ function startImageLoop(startTime){
 
     imgs.forEach((img,i)=>{
       if(i === idx) img.style.opacity = 1;
-      else if(i === idx - 1 && progress < 0.2) img.style.opacity = 1 - progress * 5;
+      else if(i === idx - 1 && progress < 0.3) img.style.opacity = 1 - progress * 3.3;
       else img.style.opacity = 0;
     });
 
-    if(elapsed < totalDuration - fadeOutDuration) requestAnimationFrame(update);
+    if(elapsed < totalDuration) requestAnimationFrame(update);
   }
   requestAnimationFrame(update);
 }
@@ -199,12 +188,10 @@ async function startShow(){
   for(let msg of messages){ await typeText(msg); }
 
   fadeEnd.classList.add('show');
-  fadeOutMusic();
 
   finalText.textContent="";
   for(let c of finalMessage){ finalText.textContent += c; await wait(70); }
 }
-
 btn.onclick = ()=>startShow();
 </script>
 </body>
